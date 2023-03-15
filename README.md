@@ -313,3 +313,13 @@
 			</tr>
 			<tr>
 				<td contenteditable="true">
+					Amazon Canada</td>
+<td contenteditable="true">FBA</td>
+<td contenteditable="true">Just Launched</td>
+<td contenteditable="true">$0.35</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
