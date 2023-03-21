@@ -340,47 +340,61 @@
         </tr>
       </tbody>
     </table>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/pg"></script>
-    <script>
-        $(document).ready(function () {
-            const { Client } = window.require('pg');
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   <script src="https://unpkg.com/pg@8.6.0/dist/pg-browser.min.js"></script>
+<script>
+  $(document).ready(function () {
+    const { Client } = window.pg;
 
-            // Connect to the ElephantSQL database
-            const client = new Client({
-                connectionString: 'postgres://vmdsfvjc:iQOEJjyO4buznnbDE75OOlvWASMlssoK@ruby.db.elephantsql.com/vmdsfvjc'
-            });
-            client.connect();
+    // Connect to the ElephantSQL database
+    const client = new Client({
+      connectionString:
+        "postgres://vmdsfvjc:iQOEJjyO4buznnbDE75OOlvWASMlssoK@ruby.db.elephantsql.com/vmdsfvjc",
+    });
 
-            // Get the table body element
-            const tableBody = $('tbody');
+    client.connect();
 
-            // Function to update the database when a cell is edited
-            function updateDatabase(row, column, value) {
-                const marketplace = row.children().eq(0).text();
-                const ships_from = row.children().eq(1).text();
-                const feedback = row.children().eq(2).text();
-                const appraisal_value = row.children().eq(3).text();
+    // Get the table body element
+    const tableBody = $("tbody");
 
-                // Update the database with the new values
-                // You will need to update the SQL query according to your table schema
-                client.query(`
-                    UPDATE your_table_name
-                    SET marketplace = $1, ships_from = $2, feedback = $3, appraisal_value = $4
-                    WHERE your_conditions`,
-                    [marketplace, shipsFrom, feedback, appraisalValue]
-                );
+    // Function to update the database when a cell is edited
+    async function updateDatabase(id, column, value) {
+      await client.query(`UPDATE marketplace SET ${column} = $1 WHERE id = $2`, [value, id]);
+    }
+
+    // Fetch data from the ElephantSQL database and render it in the table
+    async function fetchData() {
+      const result = await client.query("SELECT * FROM marketplace");
+      const data = result.rows;
+
+      data.forEach((row) => {
+        const tr = $("<tr>");
+        Object.keys(row).forEach((key) => {
+          if (key !== "id") {
+            const td = $("<td>").text(row[key]);
+            if (key === "appraisal_value") {
+              td.attr("contenteditable", "true");
             }
-
-            // Attach the 'blur' event to all editable table cells
-            tableBody.on('blur', '[contenteditable]', function () {
-                const cell = $(this);
-                const row = cell.parent();
-                const column = cell.index();
-                const value = cell.text();
-                updateDatabase(row, column, value);
-            });
+            tr.append(td);
+          }
         });
-    </script>
+        tableBody.append(tr);
+      });
+    }
+
+    fetchData();
+
+    // Handle the blur event when a cell is edited
+    tableBody.on("blur", "td[contenteditable='true']", function () {
+      const row = $(this).closest("tr");
+      const rowIndex = row.index();
+      const columnName = "appraisal_value";
+      const newValue = $(this).text();
+      const id = tableBody.find("tr").eq(rowIndex).data("id");
+
+      updateDatabase(id, columnName, newValue);
+    });
+  });
+</script>
 </body>
 </html>
