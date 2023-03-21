@@ -358,9 +358,9 @@
             // Function to update the database when a cell is edited
             function updateDatabase(row, column, value) {
                 const marketplace = row.children().eq(0).text();
-                const shipsFrom = row.children().eq(1).text();
+                const ships_from = row.children().eq(1).text();
                 const feedback = row.children().eq(2).text();
-                const appraisalValue = row.children().eq(3).text();
+                const appraisal_value = row.children().eq(3).text();
 
                 // Update the database with the new values
                 // You will need to update the SQL query according to your table schema
